@@ -1,0 +1,10 @@
+# Only explicitly reviewed release files may enter this repository.
+# Add new source files here deliberately after reviewing their contents.
+*
+!/.gitignore
+!/.env.example
+!/README.md
+!/imap_orchestrator.py
+!/requirements.txt
+!/tests/
+!/tests/test_config.py
