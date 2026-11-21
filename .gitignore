@@ -4,9 +4,12 @@
 !/.gitignore
 !/.env.example
 !/README.md
+!/CHANGELOG.md
 !/imap_orchestrator.py
 !/imap_orchestrator_v2_9.py
+!/imap_orchestrator_v2_11.py
 !/requirements.txt
 !/tests/
 !/tests/test_config.py
 !/tests/test_v2_9.py
+!/tests/test_v2_11.py

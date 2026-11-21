@@ -93,6 +93,44 @@ inspect the existing process and allow the previous instance to stop cleanly.
 No real mailbox, UID exceptions, logs or state from a live migration are
 included in the public release.
 
+## Adaptive ten-worker continuation (v2.11; opt-in)
+
+`imap_orchestrator_v2_11.py` extends the independently published v2.9
+continuation with 1/2/5-checkpoint bundling (200/400/1000 selected messages
+per imapsync process), transfer timing profiles, and a ten-lane adaptive
+parallelism controller. The maximum of ten is a **limit**, not a recommended
+constant. The controller compares both message and byte throughput for stages
+2 through 10, and degrades under memory pressure or server throttling.
+Its benchmarks are observational; message size, network and server load vary.
+
+**One-way cache-plan change:** An existing v2.9/v2.10 schema-3 migration can
+upgrade from four assigned cache lanes to ten. The script verifies the original
+snapshot and cache provenance first, backs up state, and reallocates only
+untouched packets to additional cache workers. Already-touched packets retain
+their assigned imapsync caches. Never run v2.9/v2.10 against a state whose
+`cache_lane_plan.version` is 2. Do not delete cache directories or run versions
+simultaneously. Stop the older orchestrator cleanly before changing versions.
+
+This public build reads the same `IMAP_*` environment variables as v2.9;
+`IMAP_ALLOWED_MISSING_UIDS` defaults to empty. No private account addresses,
+server endpoints, real UID exceptions, runtime state or access tokens are
+included. The source password is prompted; the external OAuth helper is still
+required. **Do not substitute the public script for a private configured
+script without checking the environment and live state.**
+
+```sh
+python3 imap_orchestrator_v2_11.py selftest
+python3 tests/test_v2_11.py
+python3 imap_orchestrator_v2_11.py doctor
+python3 imap_orchestrator_v2_11.py recover --workers 10 --bundle-chunks 5
+python3 imap_orchestrator_v2_11.py status
+python3 imap_orchestrator_v2_11.py profile
+python3 imap_orchestrator_v2_11.py audit
+```
+
+This prototype has **offline mock tests only**; performance, rate limits,
+message correctness, and attachment integrity require live validation.
+
 ## Privacy of the published files
 
 The source, comments, documentation, examples, and tests contain generic settings
