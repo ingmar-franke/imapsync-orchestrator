@@ -46,13 +46,60 @@ Run `audit` after all planned packets finish, then verify message contents and
 attachments independently. The destination INBOX must be empty before the first
 plan. Both mailboxes' UIDVALIDITY values must remain stable.
 
+## Four-worker continuation (v2.9; opt-in)
+
+`imap_orchestrator_v2_9.py` is a separately published, generalized implementation
+of the four-worker continuation. It **does not replace** the original bootstrap
+workflow. Prepare a schema-2 state using `imap_orchestrator.py` with `plan`,
+`pilot`, `pilot-check`, and a successfully completed `parallel-probe` before
+switching. A migrated schema-3 state **cannot be read by the original script**.
+
+The new module keeps previously touched packets bound to their existing
+`cache-worker1` / `cache-worker2` UID caches; only verified untouched packet
+ranges may be assigned to new `cache-worker3` / `cache-worker4` caches. The
+upgrade backs up the old state and atomically stores the new cache-lane plan.
+The requested `--workers 4` is a maximum, not four constantly active sessions:
+progressive throughput measurement selects 2, then optionally 3 and 4;
+server-throttle or memory warnings can reduce concurrency without erasing
+checkpoints. The measurement window is deliberately approximate, not a
+performance guarantee.
+
+All account settings are read from the **same environment variables** as the
+bootstrap script. Run `selftest` offline and then, on a test mailbox first:
+
+```sh
+python3 imap_orchestrator_v2_9.py selftest
+python3 tests/test_v2_9.py
+python3 imap_orchestrator_v2_9.py doctor
+python3 imap_orchestrator_v2_9.py recover --workers 4
+python3 imap_orchestrator_v2_9.py status
+python3 imap_orchestrator_v2_9.py audit
+```
+
+For this module, an absent `IMAP_ALLOWED_MISSING_UIDS` or empty value means
+**no historical UID gaps are tolerated**. If source messages disappear during
+migration, the default action is to stop rather than rewrite the UID snapshot.
+Only after a separate, documented verification may a specific UID be listed
+(e.g. `IMAP_ALLOWED_MISSING_UIDS="101,205"` uses **synthetic** values).
+The original snapshot digest must still match exactly after reconstruction;
+these exceptions remain explicitly unresolved in the audit and are never
+counted as transferred. A clean audit additionally requires stable UIDVALIDITY,
+all packets complete, and expected destination message counts. It does not
+prove byte-level equality of messages or attachments.
+
+**Operational warning:** This is an offline-tested prototype. Running multiple
+orchestrators simultaneously against the same state/target is prohibited;
+inspect the existing process and allow the previous instance to stop cleanly.
+No real mailbox, UID exceptions, logs or state from a live migration are
+included in the public release.
+
 ## Privacy of the published files
 
 The source, comments, documentation, examples, and tests contain generic settings
 and synthetic fixtures. Actual account names, credentials, mail contents,
 mailbox exports, migration state, and process logs are not included.
 
-By default, `.gitignore` ignores everything except the six reviewed project
+By default, `.gitignore` ignores everything except the explicitly reviewed project
 files. Forced additions and API uploads can bypass these rules. Always inspect
 the exact staged files before committing. Ignore rules do not remove files
 already tracked or contained in earlier commits.
