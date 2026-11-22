@@ -13,3 +13,26 @@
 !/tests/test_config.py
 !/tests/test_v2_9.py
 !/tests/test_v2_11.py
+
+# Audited IMAP archive toolkit source only (no data, tokens or logs).
+!/.env.archive.example
+!/.gitignore.archive
+!/README_ARCHIVE_TOOLS.md
+!/archive_tools/
+!/archive_tools/__init__.py
+!/archive_tools/archive_audit.py
+!/archive_tools/config.py
+!/archive_tools/delta_inbox.py
+!/archive_tools/delta_sent.py
+!/archive_tools/duplicate_counts.py
+!/archive_tools/duplicate_headers.py
+!/archive_tools/duplicate_mime.py
+!/archive_tools/inbox_content_diagnostics.py
+!/archive_tools/inbox_header_diagnostics.py
+!/archive_tools/mime_detail.py
+!/archive_tools/mime_validator.py
+!/archive_tools/mime_visible.py
+!/scripts/
+!/scripts/check_archive_release.py
+!/tests/archive_tools/
+!/tests/archive_tools/test_offline.py
