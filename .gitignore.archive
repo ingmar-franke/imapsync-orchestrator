@@ -1,0 +1,22 @@
+# Import into the repository-wide .gitignore (append; do not replace).
+.env.archive
+.env.archive.*
+!.env.archive.example
+*.sqlite3
+*.sqlite3-*
+*.db
+*.log
+*.eml
+*.pst
+*.mbox
+*.csv
+*progress.json
+*report.json
+*delta_inbox.json
+*delta_sent.json
+**/imapsync_cache/
+**/cache-inbox/
+**/cache-sent/
+**/__pycache__/
+*.pyc
+private-mail/
