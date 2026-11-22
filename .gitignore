@@ -36,3 +36,8 @@
 !/scripts/check_archive_release.py
 !/tests/archive_tools/
 !/tests/archive_tools/test_offline.py
+
+# Allow exactly one reviewed CI workflow; keep private artifacts ignored.
+!/.github/
+!/.github/workflows/
+!/.github/workflows/offline-ci.yml
